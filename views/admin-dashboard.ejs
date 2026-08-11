@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard - Manage Participants</h1>
+  <a href="/">Go to Home</a> | <a href="/logout">Logout</a>
+  <hr>
+
+  <h3>Add New Participant</h3>
+  <form action="/admin/participant/create" method="POST" enctype="multipart/form-data">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="file" name="photo" accept="image/*" required>
+    <input type="text" name="description" placeholder="Description">
+    <button type="submit">Add Participant</button>
+  </form>
+
+  <hr>
+
+  <h3>Existing Participants</h3>
+  <table>
+    <tr>
+      <th>Photo</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+    <% participants.forEach(p => { %>
+      <tr>
+        <td><img src="<%= p.photo %>" width="50" height="50" style="object-fit:cover;"></td>
+        <td><%= p.name %></td>
+        <td><%= p.description %></td>
+        <td>
+          <a href="/admin/participant/delete/<%= p.id %>" onclick="return confirm('Delete?')">Delete</a>
+          <details>
+            <summary>Edit</summary>
+            <form action="/admin/participant/update" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="id" value="<%= p.id %>">
+              <input type="text" name="name" value="<%= p.name %>" required><br>
+              <input type="file" name="photo"><br>
+              <input type="text" name="description" value="<%= p.description %>"><br>
+              <button type="submit">Update</button>
+            </form>
+          </details>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>
