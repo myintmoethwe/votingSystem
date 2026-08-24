@@ -1,62 +1,314 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Voting System - Home</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>King & Queen Voting</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .header { display: flex; justify-content: space-between; align-items: center; }
-    .grid { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
-    .card { border: 1px solid #ccc; border-radius: 8px; padding: 15px; width: 220px; text-align: center; }
-    .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; }
-    .btn { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
-    .vote-option { margin-top: 10px; display: block; font-weight: bold; cursor: pointer; }
-    .error { color: red; font-weight: bold; margin-top: 10px; }
-    .success { color: green; font-weight: bold; margin-top: 10px; }
+    @font-face {
+        font-family: 'Playfair Display';
+        src: url('./font/PlayfairDisplay-VariableFont_wght.ttf') format('truetype');
+        font-weight: 100 900;
+        font-style: normal;
+    }
+
+    * {  
+        font-family: 'Playfair Display', serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {   
+        background: #f8f7ff;
+        color: #333;
+    }
+
+    header {
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(
+            135deg,
+            #0066ff,
+            #66b3ff
+        );
+        color: white;
+    }
+
+    header h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    header p {
+        font-size: 16px;
+        opacity: 0.9;
+    }
+
+    .voting-section {
+        width: 100%;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 30px 20px;
+    }
+
+    .voting-section h2 {
+        color: #0056b3;
+        text-align: center;
+        font-size: 25px;
+        margin-bottom: 8px;
+    }
+
+    .instruction {
+        text-align: center;
+        color: #777;
+        margin-bottom: 30px;
+    }
+
+    .candidate-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+    }
+
+    .candidate {
+        background: #fff;
+        border-radius: 15px;
+        padding: 18px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+        transition: 0.3s ease;
+    }
+
+    .candidate:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+    }
+
+    .candidate img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    .candidate h3 {
+        margin: 5px 0;
+        font-size: 18px;
+    }
+
+    .candidate p {
+        margin-bottom: 15px;
+        color: #666;
+    }
+
+    .option-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .select-btn {
+        width: 100%;
+        padding: 10px 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.25s ease;
+    }
+
+    .king-btn, .queen-btn, .smart-btn, .style-btn, .b-popular-btn, .g-popular-btn {
+        background: #f4f4f4;
+        color: #0056b3;
+        border: 2px solid #c4deff;
+    }
+
+    .king-btn:hover, .queen-btn:hover, .smart-btn:hover, .style-btn:hover, .b-popular-btn:hover, .g-popular-btn:hover {
+        background: #c4deff;
+        color: #000;
+    }
+
+    .select-btn.selected {
+        transform: scale(0.97);
+        background-color: #0052cc;
+        color: #fff;
+    }
+
+    .select-btn.selected::after {
+        content: " ✓";
+    }
+
+    .submit-area {
+        text-align: center;
+        margin: 30px 0 60px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        background: #0066ff;
+        color: #fff;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .submit-btn:hover {
+        background: #218838;
+        transform: translateY(-2px);
+    }
+
+    #error-message {
+        color: #d33;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    @media (max-width: 1000px) {
+        .candidate-container { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    }
+
+    @media (max-width: 750px) {
+        .voting-section { padding: 25px 15px; }
+        .candidate-container { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    }
+
+    @media (max-width: 500px) {
+        .voting-section { padding: 20px 12px; }
+        .voting-section h2 { font-size: 24px; }
+        .instruction { font-size: 14px; margin-bottom: 20px; }
+        .candidate-container { grid-template-columns: 1fr; padding: 28px; }
+        .candidate { padding: 15px; }
+        .candidate h3 { font-size: 17px; }
+        .select-btn { padding: 12px; font-size: 15px; }
+    }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>Public Voting Poll</h1>
-    <div>
-      <% if (user && user.isAdmin) { %>
-        <span>Logged in as <strong>Admin</strong></span> | 
-        <a href="/admin/dashboard" class="btn" style="background: #28a745;">Admin Dashboard</a> | 
-        <a href="/logout">Logout</a>
-      <% } %>
-    </div>
-  </div>
-  <hr>
+  <header>
+    <h1>👑 King & Queen Selection</h1>
+    <p>Choose your favorite candidates</p>
+  </header>
 
-  <% if (typeof error !== 'undefined' && error) { %>
-    <p class="error"><%= error %></p>
-  <% } %>
-
-  <form action="/vote" method="POST">
-    <div class="grid">
-      <% participants.forEach(p => { %>
-        <div class="card">
-          <img src="<%= p.photo %>" alt="<%= p.name %>">
-          <h3><%= p.name %></h3>
-          <p><%= p.description %></p>
-
-<% if (!locals.hasVoted && (!locals.user || !locals.user.isAdmin)) { %>
-              <label class="vote-option">
-              <input type="radio" name="participantId" value="<%= p.id %>" required> Vote
-            </label>
-          <% } %>
-        </div>
-      <% }) %>
-    </div>
-
+  <main>
     <% if (locals.hasVoted) { %>
-  <br>
-  <p class="success">Thank you! Your vote has been recorded.</p>
-<% } else if (!locals.user || !locals.user.isAdmin) { %>
-  <br>
-  <button type="submit" class="btn">Submit Vote</button>
-<% } %>
-  </form>
+      <div style="text-align: center; margin: 50px 0;">
+        <h2 style="color: #27ae60;">Thank you! Your votes have been recorded.</h2>
+      </div>
+    <% } else { %>
 
+      <!-- ADDED onsubmit LEVER -->
+      <form action="/vote" method="POST" id="voteForm" onsubmit="return validateAndSubmit(event)">
+
+        <!-- ADDED HIDDEN INPUTS TO STORE DATA FOR NODE.JS -->
+        <input type="hidden" name="kingId" id="input-king">
+        <input type="hidden" name="mrSmartId" id="input-smart">
+        <input type="hidden" name="mrPopularId" id="input-b-popular">
+        <input type="hidden" name="queenId" id="input-queen">
+        <input type="hidden" name="msStyleId" id="input-style">
+        <input type="hidden" name="msPopularId" id="input-g-popular">
+
+        <section class="voting-section">
+          <h2>👑 Select Male Candidates</h2>
+          <p class="instruction">Please choose one option per category.</p>
+
+          <div class="candidate-container">
+            <% participants.filter(p => p.gender === 'boy').forEach(p => { %>
+              <div class="candidate">
+                <img src="<%= p.photo %>" alt="Candidate Photo">
+                <h3><%= p.name %></h3>
+                <p><%= p.decription %></p>
+
+            <% }) %>
+          </div>
+        </section>
+
+        <section class="voting-section">
+          <h2>👸 Select Female Candidates</h2>
+          <p class="instruction">Please choose one option per category.</p>
+
+          <div class="candidate-container">
+            <% participants.filter(p => p.gender === 'girl').forEach(p => { %>
+              <div class="candidate">
+                <img src="<%= p.photo %>" alt="Candidate Photo">
+                <h3><%= p.name %></h3>
+                <p><%= p.decription %></p>
+
+                <% if (!locals.user || !locals.user.isAdmin) { %>
+                  <div class="option-buttons">
+                    <button type="button" class="select-btn queen-btn"
+                            onclick="selectCandidate(this, 'queen', '<%= p.id %>')">
+                        Queen
+                    </button>
+
+                    <button type="button" class="select-btn style-btn"
+                            onclick="selectCandidate(this, 'style', '<%= p.id %>')">
+                        Style
+                    </button>
+
+                    <button type="button" class="select-btn g-popular-btn"
+                            onclick="selectCandidate(this, 'g-popular', '<%= p.id %>')">
+                        Popular
+                    </button>
+                  </div>
+                <% } %>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+
+        <div class="submit-area">
+          <p id="error-message"></p>
+          <button type="submit" class="submit-btn">Confirm Vote</button>
+        </div>
+
+      </form>
+
+    <% } %>
+  </main>
+
+<script>
+function selectCandidate(button, category, candidateId) {
+    const buttons = document.querySelectorAll("." + category + "-btn");
+    const hiddenInput = document.getElementById("input-" + category);
+
+    if (button.classList.contains("selected")) {
+        button.classList.remove("selected");
+        if (hiddenInput) hiddenInput.value = "";
+        return;
+    }
+
+    // Deselect other options in the same category
+    buttons.forEach(btn => btn.classList.remove("selected"));
+
+    button.classList.add("selected");
+    if (hiddenInput) hiddenInput.value = candidateId;
+}
+
+function validateAndSubmit(event) {
+    const categories = ['king', 'smart', 'b-popular', 'queen', 'style', 'g-popular'];
+    const error = document.getElementById("error-message");
+
+    for (let cat of categories) {
+        const input = document.getElementById("input-" + cat);
+        if (!input || !input.value) {
+            event.preventDefault(); // Stop form submission
+            error.innerText = "Please select one candidate for all 6 categories before confirming.";
+            return false;
+        }
+    }
+
+    error.innerText = "";
+    return true;
+}
+</script>
 </body>
 </html>
