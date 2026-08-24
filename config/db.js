@@ -1,13 +1,15 @@
+// config/db.js
+const { Pool } = require("pg")
 require("dotenv").config()
 
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+})
+
 module.exports = {
-  PORT: process.env.PORT,
-  SESSION_SECRET: process.env.SESSION_SECRET,
-  ADMIN_USER: process.env.ADMIN_USER,
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
-  USER: process.env.DB_USER,
-  HOST: process.env.DB_HOST,
-  DB_NAME: process.env.DB_NAME,
-  DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_PORT: process.env.DB_PORT,
+  query: (text, params) => pool.query(text, params),
 }

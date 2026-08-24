@@ -1,4 +1,4 @@
-const { ADMIN_USER, ADMIN_PASSWORD } = require("../config/db")
+const { ADMIN_USER, ADMIN_PASSWORD } = require("../config/config")
 
 exports.renderAdminLogin = (req, res) => {
   res.render("admin-login", { error: null })
@@ -7,8 +7,8 @@ exports.renderAdminLogin = (req, res) => {
 exports.adminLogin = (req, res) => {
   const { username, password } = req.body
 
-  const validUser = ADMIN_USER || "admin"
-  const validPass = ADMIN_PASSWORD || "123456"
+  const validUser = ADMIN_USER
+  const validPass = ADMIN_PASSWORD
 
   if (username === validUser && password === validPass) {
     // CRITICAL: Set isAdmin flag inside session

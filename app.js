@@ -4,7 +4,7 @@ const express = require("express")
 const app = express()
 const session = require("express-session")
 const routes = require("./routes")
-const { SESSION_SECRET } = require("./config/db")
+const { SESSION_SECRET } = require("./config/config")
 
 // View Engine
 app.set("view engine", "ejs")

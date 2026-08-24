@@ -1,4 +1,4 @@
-const db = require("../config/db")
+const db = require("../config/config")
 
 exports.getKing = async () => {
   const { rows } = await db.query(

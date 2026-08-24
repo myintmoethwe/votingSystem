@@ -7,6 +7,7 @@ const {
   getSettings,
   getWinners,
 } = require("../services/admin.services")
+const { getAllParticipants } = require("../services/user.services")
 
 exports.createParticipant = async (req, res) => {
   const { name, description, gender } = req.body
