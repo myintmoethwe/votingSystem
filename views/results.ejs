@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Election Results</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #fff7fa; color: #333; }
+    header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #8f2857, #c34d7c); color: white; }
+    header h1 { font-size: 32px; margin-bottom: 10px; }
+    header p { font-size: 16px; opacity: 0.9; }
+    main { width: 90%; max-width: 1200px; margin: 40px auto; }
+    
+    .status-banner { text-align: center; background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .status-banner.closed { border-left: 6px solid #27ae60; }
+    .status-banner.open { border-left: 6px solid #e67e22; }
+
+    .winners-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 40px; }
+    .winner-card { background: white; border-radius: 20px; padding: 25px; text-align: center; border: 2px solid #f5dce5; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); position: relative; }
+    .winner-card.king-queen { border-color: #ffd700; background: linear-gradient(180deg, #fffdf0 0%, #ffffff 100%); }
+    .badge { position: absolute; top: 15px; right: 15px; background: #8f2857; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    .winner-card img { width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 4px solid #8f2857; margin-bottom: 15px; }
+    .winner-card h3 { color: #8f2857; font-size: 22px; margin-bottom: 5px; }
+    .winner-card .award-title { color: #d4af37; font-weight: bold; font-size: 16px; margin-bottom: 10px; text-transform: uppercase; }
+    .winner-card .vote-count { background: #fbebf1; color: #8f2857; padding: 8px 16px; border-radius: 8px; font-weight: bold; display: inline-block; margin-top: 10px; }
+
+    .summary-section { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .summary-section h2 { color: #8f2857; margin-bottom: 20px; text-align: center; }
+    .stats-container { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; text-align: center; }
+    .stat-box { flex: 1; min-width: 150px; background: #fff7fa; padding: 15px; border-radius: 10px; }
+    .stat-box h4 { color: #777; font-size: 14px; margin-bottom: 5px; }
+    .stat-box p { color: #8f2857; font-size: 24px; font-weight: bold; }
+
+    .actions { text-align: center; margin-top: 30px; }
+    .btn { background: #8f2857; color: white; border: none; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; cursor: pointer; display: inline-block; margin: 0 5px; }
+    .btn:hover { background: #6f1d43; }
+
+    @media print { .actions, header { display: none; } main { width: 100%; margin: 0; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🏆 Official Election Results</h1>
+    <p>Voting Outcomes & Winner Announcements</p>
+  </header>
+
+  <main>
+
+    
+
+    <!-- WINNERS / LEADERS GRID -->
+    <h2 style="text-align: center; color: #8f2857; margin-bottom: 25px;">👑 Category Winners</h2>
+
+    <div class="winners-grid">
+
+      <!-- KING -->
+      <div class="winner-card king-queen">
+        <span class="badge">King</span>
+        <div class="award-title">👑 King Winner</div>
+        <% if (winners && winners.king) { %>
+          <img src="<%= winners.king.photo %>" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="<%= winners.king.name %>">
+          <h3><%= winners.king.name %></h3>
+          <p><%= winners.king.description %></p>
+          <div class="vote-count"><%= winners.king.votes_king_queen %> Votes</div>
+        <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>
+      </div>
+
+      <!-- QUEEN -->
+      <div class="winner-card king-queen">
+        <span class="badge">Queen</span>
+        <div class="award-title">👸 Queen Winner</div>
+        <% if (winners && winners.queen) { %>
+          <img src="<%= winners.queen.photo %>" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="<%= winners.queen.name %>">
+          <h3><%= winners.queen.name %></h3>
+          <p><%= winners.queen.description %></p>
+          <div class="vote-count"><%= winners.queen.%> Votes</div>
+        <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>
+      </div>
+
+      <!-- MR. SMART -->
+      <div class="winner-card">
+        <span class="badge">Smart</span>
+        <div class="award-title">🧠 Mr. Smart</div>
+        <% if (winners && winners.mrSmart) { %>
+          <img src="<%= winners.mrSmart.photo %>" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="<%= winners.mrSmart.name %>">
+          <h3><%= winners.mrSmart.name %></h3>
+          <p><%= winners.mrSmart.description %></p>
+          <div class="vote-count"><%= winners.mrSmart.votes_smart_style %> Votes</div>
+        <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>
+      </div>
+
+      <!-- MS. STYLE -->
+      <div class="winner-card">
+        <span class="badge">Style</span>
+        <div class="award-title">✨ Ms. Style</div>
+        <% if (winners && winners.msStyle) { %>
+          <img src="<%= winners.msStyle.photo %>" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="<%= winners.msStyle.name %>">
+          <h3><%= winners.msStyle.name %></h3>
+          <p><%= winners.msStyle.description %></p>
+          <div class="vote-count"><%= winners.msStyle.votes_smart_style %> Votes</div>
+        <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>
+      </div>
+
+      <!-- MR. POPULAR -->
+      <div class="winner-card">
+        <span class="badge">Popular</span>
+        <div class="award-title">🌟 Mr. Popular</div>
+        <% if (winners && winners.mrPopular) { %>
+          <img src="<%= winners.mrPopular.photo %>" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="<%= winners.mrPopular.name %>">
+          <h3><%= winners.mrPopular.name %></h3>
+          <p><%= winners.mrPopular.description %></p>
+          <div class="vote-count"><%= winners.mrPopular.votes_popular %> Votes</div>
+        <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>
+      </div>
+
+      <!-- MS. POPULAR -->
+      <div class="winner-card">
+        <span class="badge">Popular</span>
+        <div class="award-title">🌟 Ms. Popular</div>
+        <% if (winners && winners.msPopular) { %>
+          <img src="<%= winners.msPopular.photo %>" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="<%= winners.msPopular.name %>">
+          <h3><%= winners.msPopular.name %></h3>
+          <p><%= winners.msPopular.description %></p>
+          <div class="vote-count"><%= winners.msPopular.votes_popular %> Votes</div>
+        <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>
+      </div>
+
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+      <a href="/" class="btn">Back to Home</a>
+      <button onclick="window.print()" class="btn">Print Results</button>
+    </div>
+
+  </main>
+
+</body>
+</html>

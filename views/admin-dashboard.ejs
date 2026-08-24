@@ -1,56 +1,652 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Dashboard</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - King & Queen</title>
+    <link rel="stylesheet" href="../style/admin.css">
+    <style>
+        /* Hide all page sections by default, show active */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+    </style>
 </head>
 <body>
-  <h1>Admin Dashboard - Manage Participants</h1>
-  <a href="/">Go to Home</a> | <a href="/logout">Logout</a>
-  <hr>
 
-  <h3>Add New Participant</h3>
-  <form action="/admin/participant/create" method="POST" enctype="multipart/form-data">
-    <input type="text" name="name" placeholder="Name" required>
-    <input type="file" name="photo" accept="image/*" required>
-    <input type="text" name="description" placeholder="Description">
-    <button type="submit">Add Participant</button>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <span>👑</span>
+            <h2>King & Queen</h2>
+        </div>
+
+        <nav>
+            <a href="#dashboard" class="nav-link active" onclick="showPage(event, 'dashboard')">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="#candidates" class="nav-link" onclick="showPage(event, 'candidates')">
+                <span>👥</span> Candidates
+            </a>
+            <a href="#vote" class="nav-link" onclick="showPage(event, 'vote')">
+                <span>🗳️</span> Votes
+            </a>
+            <a href="#result" class="nav-link" onclick="showPage(event, 'result')">
+                <span>🏆</span> Results
+            </a>
+            <a href="#setting" class="nav-link" onclick="showPage(event, 'setting')">
+                <span>⚙️</span> Settings
+            </a>
+        </nav>
+
+        <a href="/logout" class="logout">
+            <span>🚪</span> Logout
+        </a>
+    </aside>
+
+    <main class="main">
+
+        <!-- DASHBOARD PAGE -->
+        <section id="dashboard-page" class="page-section active">
+            <header class="topbar">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, Admin!</p>
+                </div>
+                <div class="admin-profile">
+                    <div class="admin-avatar">A</div>
+                    <div>
+                        <strong>Administrator</strong>
+                        <small>Admin</small>
+                    </div>
+                </div>
+            </header>
+
+            <!-- STATISTICS -->
+            <section class="statistics">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div>
+                        <p>Total Voters</p>
+                        <h2><%= stats && stats.total_votes ? stats.total_votes : 0 %></h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🗳️</div>
+                    <div>
+                        <p>King Votes</p>
+                        <h2><%= stats ? stats.total_king_votes: 0 %></h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👸</div>
+                    <div>
+                        <p>Queen Votes</p>
+                        <h2><%= stats ? stats.total_queen_votes : 0 %></h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👸</div>
+                    <div>
+                        <p>Smart Votes</p>
+                        <h2><%= stats ? stats.total_smart_votes : 0 %></h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👸</div>
+                    <div>
+                        <p>Style Votes</p>
+                        <h2><%= stats ? stats.total_style_votes : 0 %></h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👑</div>
+                    <div>
+                        <p>Popular Votes</p>
+                        <h2><%= stats ? stats.total_popular_votes : 0 %></h2>
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- VOTING STATUS -->
+            <section class="status-card">
+                <div>
+                    <h2>Voting Status</h2>
+                    <p>King & Queen Selection is currently <strong>OPEN</strong>.</p>
+                </div>
+                <span class="status open">● LIVE</span>
+            </section>
+
+            <!-- CONTENT GRID -->
+            <section class="content-grid">
+                <!-- KING RESULTS -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h2>👑 King Results</h2>
+                        <a href="#" onclick="showPage(event, 'result')">View All</a>
+                    </div>
+                    <div class="candidate-row">
+        <% if (winners && winners.king) { %>
+
+                        <div class="candidate-info">
+                            <div class="rank">1</div>
+                            <img src="<%= winners.king.photo %>" alt="Aung Aung">
+                            <div>
+                                <strong><%= winners.king.name %></strong>
+                                <small>K-01</small>
+                            </div>
+                        </div>
+                        <div class="vote-count">
+                            <strong><%= winners.king.kingVotes %></strong>
+                            <small>votes</small>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- QUEEN RESULTS -->
+                <div class="result-card">
+                    <div class="card-header">
+                        <h2>👸 Queen Results</h2>
+                        <a href="#" onclick="showPage(event, 'result')">View All</a>
+                    </div>
+                    <div class="candidate-row">
+        <% if (winners && winners.queen) { %>
+                        <div class="candidate-info">
+                            <div class="rank">1</div>
+                            <img src="<%= winners.queen.photo %>" alt="Su Su">
+                            <div>
+                                <strong><%= winners.queen.name %></strong>
+                                <small>Q-01</small>
+                            </div>
+                        </div>
+                        <div class="vote-count">
+                            <strong><%= winners.queen.queenVotes %></strong>
+                            <small>votes</small>
+                        </div>
+                    </div>
+                    <% }%>
+                </div>
+            </section>
+        </section>
+
+        <!-- CANDIDATES PAGE -->
+        <section id="candidates-page" class="page-section">
+            <div class="page-header">
+                <div>
+                    <h1>Candidates</h1>
+                    <p>Manage King and Queen candidates</p>
+                </div>
+            </div>
+
+            <!-- ADD CANDIDATE FORM -->
+            <div class="form-container">
+                <h3>Add New Candidate</h3>
+                <form action="/admin/participant/create" method="POST" enctype="multipart/form-data">
+                    <div>
+                        <label>Candidate Name:</label>
+                        <input type="text" name="name" required />
+                    </div>
+                    <div>
+                        <label>Major:</label>
+                        <input name="description" required></input>
+                    </div>
+                    <div>
+                        <label>Gender:</label>
+                        <select name="gender" required>
+                            <option value="boy">Boy (King, Mr. Smart, Mr. Popular)</option>
+                            <option value="girl">Girl (Queen, Ms. Style, Ms. Popular)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Photo:</label>
+                        <input type="file" name="photo" accept="image/*" required />
+                    </div>
+                    <button type="submit" class="add-btn">Add Candidate</button>
+                </form>
+            </div>
+
+            <!-- FILTER BOX -->
+            <div class="filter-box">
+                <div class="search-box">
+                    🔍
+                    <input type="text" placeholder="Search candidate..." onkeyup="searchCandidates()" id="searchInput">
+                </div>
+                <select id="categoryFilter" onchange="filterCandidates()">
+                    <option value="all">All Categories</option>
+                    <option value="King">👑 King</option>
+                    <option value="Queen">👸 Queen</option>
+                </select>
+                
+            </div>
+
+            <!-- CANDIDATE TABLE -->
+            <div class="candidate-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Candidate</th>
+                            <th>Candidate_no</th>
+                            <th>Votes</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidateTable">
+                        <% if (typeof participants !== 'undefined' && participants.length > 0) { %>
+                            <% participants.forEach((p, index) => { %>
+                                <tr data-category="<%= p.gender === 'boy' ? 'King' : 'Queen' %>" data-status="Active">
+                                    <td><%= p.display_id %></td>
+                                    <td>
+
+                                        <div class="candidate-info">
+                                            <img src="<%= p.photo %>" alt="<%= p.name %>">
+                                            <div>
+                                                <strong><%= p.name %></strong>
+                                                <small><%= p.description %></small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="category <%= p.gender === 'boy' ? 'king' : 'queen' %>">
+                                            <%= p.gender === 'boy' ? '👑 King' : '👸 Queen' %>
+                                        </span>
+                                    </td>
+                                    <td><strong><%= p.vote || 0 %></strong></td>
+                                    <td class="btns">
+                                        <!-- Edit Modal / Collapsible Form -->
+                                        <details>
+                                            <summary class="edit-btn">Edit</summary>
+                                            <form action="/admin/participant/update/<%= p.id %>" method="POST" enctype="multipart/form-data">
+                                                <input type="text" name="name" value="<%= p.name %>" required><br>
+                                                <input type="file" name="photo"><br>
+                                                <input type="text" name="description" value="<%= p.description %>"><br>
+                                                <button type="submit" class="edit-btn">Save</button>
+                                            </form>
+                                        </details>
+
+                                        <a href="/admin/participant/delete/<%= p.id %>"  class="delete-btn">Delete</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6">No candidates found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+ <section id="vote-page" class="page-section">
+
+            <div class="page-header">
+                <h1>Vote Records</h1>
+                <p>View all voting records</p>
+            </div>
+
+            <div class="vote-table-container">
+                <table class="vote-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Voter Name</th>
+                            <th>Voter ID</th>
+                            <th>Candidate</th>
+                            <th>Vote Status</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Mg Mg</td>
+                            <td>V001</td>
+                            <td>Candidate A</td>
+                            <td><span class="status voted">Voted</span></td>
+                            <td>16 Aug 2026</td>
+                            <td>10:30 AM</td>
+                        </tr>
+
+                        <tr>
+                            <td>2</td>
+                            <td>Su Su</td>
+                            <td>V002</td>
+                            <td>Candidate B</td>
+                            <td><span class="status voted">Voted</span></td>
+                            <td>16 Aug 2026</td>
+                            <td>10:45 AM</td>
+                        </tr>
+
+                        <tr>
+                            <td>3</td>
+                            <td>Aung Aung</td>
+                            <td>V003</td>
+                            <td>Candidate C</td>
+                            <td><span class="status pending">Pending</span></td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+        <section id="result-page" class="page-section">
+
+            <div class="page-header">
+                <h1>Voting Results</h1>
+                <p>View the current voting results</p>
+            </div>
+
+            <div class="result-container">
+
+                <div class="result-card">
+
+                    <h2>King</h2>
+
+                    <table class="result-table">
+                        <thead>
+
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate Name</th>
+                                <th>Total Votes</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <% if (winners && winners.king) { %>
+                            <tr>
+                                <td>🥇 1</td>
+                                <td><%= winners.king.name %></td>
+                                <td><%= winners.king.kingVotes %></td>
+                                <td>45%</td>
+                            </tr>
+ <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>                            
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <div class="result-card">
+                    <h2>Queen</h2>
+
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate Name</th>
+                                <th>Total Votes</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        <% if (winners && winners.queen) { %>
+                            <tr>
+                                <td>🥇 1</td>
+                                <td><%= winners.queen.name %></td>
+                                <td><%= winners.queen.queenVotes %></td>
+                                <td>52%</td>
+                            </tr>
+ <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>
+                           
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="result-card">
+
+                    <h2>Mr.Smart</h2>
+
+                    <table class="result-table">
+                        <thead>
+
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate Name</th>
+                                <th>Total Votes</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <% if (winners && winners.mrSmart) { %>
+                            <tr>
+                                <td>🥇 1</td>
+                                <td><%= winners.mrSmart.name %></td>
+                                <td><%= winners.mrSmart.smartVotes %></td>
+                                <td>45%</td>
+                            </tr>
+ <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>                            
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="result-card">
+
+                    <h2>Ms.Style</h2>
+
+                    <table class="result-table">
+                        <thead>
+
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate Name</th>
+                                <th>Total Votes</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <% if (winners && winners.msStyle) { %>
+                            <tr>
+                                <td>🥇 1</td>
+                                <td><%= winners.msStyle.name %></td>
+                                <td><%= winners.msStyle.styleVotes %></td>
+                                <td>45%</td>
+                            </tr>
+ <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>                            
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="result-card">
+
+                    <h2>Mr.Popular</h2>
+
+                    <table class="result-table">
+                        <thead>
+
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate Name</th>
+                                <th>Total Votes</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <% if (winners && winners.mrPopular) { %>
+                            <tr>
+                                <td>🥇 1</td>
+                                <td><%= winners.mrPopular.name %></td>
+                                <td><%= winners.mrPopular.popularVotes %></td>
+                                <td>45%</td>
+                            </tr>
+ <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>                            
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="result-card">
+
+                    <h2>Ms.Popular</h2>
+
+                    <table class="result-table">
+                        <thead>
+
+                            <tr>
+                                <th>Rank</th>
+                                <th>Candidate Name</th>
+                                <th>Total Votes</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <% if (winners && winners.msPopular) { %>
+                            <tr>
+                                <td>🥇 1</td>
+                                <td><%= winners.msPopular.name %></td>
+                                <td><%= winners.msPopular.popularVotes %></td>
+                                <td>45%</td>
+                            </tr>
+ <% } else { %>
+          <p>No candidate recorded</p>
+        <% } %>                            
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+<div class="settings-container" style="max-width: 900px; margin: 30px auto; font-family: sans-serif;">
+  <form action="/admin/settings" method="POST">
+
+    <!-- Election Settings Card -->
+    <div style="background: #fff; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <h3 style="color: #1e293b; margin-top: 0;">Election Settings</h3>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: bold; color: #1e3a8a; margin-bottom: 5px;">Election Name</label>
+        <input type="text" name="election_name" value="<%= settings.election_name %>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;" />
+      </div>
+
+      <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+        <div style="flex: 1;">
+          <label style="display: block; font-weight: bold; color: #1e3a8a; margin-bottom: 5px;">Start Date</label>
+          <input type="datetime-local" name="start_date" value="<%= settings.start_date ? new Date(settings.start_date).toISOString().slice(0,16) : '' %>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;" />
+        </div>
+        <div style="flex: 1;">
+          <label style="display: block; font-weight: bold; color: #1e3a8a; margin-bottom: 5px;">End Date</label>
+          <input type="datetime-local" name="end_date" value="<%= settings.end_date ? new Date(settings.end_date).toISOString().slice(0,16) : '' %>" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;" />
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: bold; color: #1e3a8a; margin-bottom: 5px;">Election Status</label>
+        <select name="is_voting_open" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+          <option value="open" <%= settings.is_voting_open ? 'selected' : '' %>>Open</option>
+          <option value="closed" <%= !settings.is_voting_open ? 'selected' : '' %>>Closed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Voting Settings Card -->
+    <div style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <h3 style="color: #1e293b; margin-top: 0;">Voting Settings</h3>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 15px;">
+        <div>
+          <strong style="display: block; color: #1e293b;">One Vote Per Student</strong>
+          <span style="color: #64748b; font-size: 13px;">Allow each student to vote only once.</span>
+        </div>
+        <label style="position: relative; display: inline-block; width: 45px; height: 24px;">
+          <input type="checkbox" name="one_vote_per_student" <%= settings.one_vote_per_student ? 'checked' : '' %>>
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong style="display: block; color: #1e293b;">Show Results</strong>
+          <span style="color: #64748b; font-size: 13px;">Allow students to see voting results.</span>
+        </div>
+        <label style="position: relative; display: inline-block; width: 45px; height: 24px;">
+          <input type="checkbox" name="show_results" <%= settings.show_results ? 'checked' : '' %>>
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" style="margin-top: 20px; background: #2563eb; color: #fff; padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+      Save Settings
+    </button>
   </form>
+</div>
 
-  <hr>
+                <!-- Security Settings -->
+                <div class="settings-card">
+                    <h2>Security</h2>
 
-  <h3>Existing Participants</h3>
-  <table>
-    <tr>
-      <th>Photo</th>
-      <th>Name</th>
-      <th>Description</th>
-      <th>Actions</th>
-    </tr>
-    <% participants.forEach(p => { %>
-      <tr>
-        <td><img src="<%= p.photo %>" width="50" height="50" style="object-fit:cover;"></td>
-        <td><%= p.name %></td>
-        <td><%= p.description %></td>
-        <td>
-          <a href="/admin/participant/delete/<%= p.id %>" onclick="return confirm('Delete?')">Delete</a>
-          <details>
-            <summary>Edit</summary>
-            <form action="/admin/participant/update" method="POST" enctype="multipart/form-data">
-              <input type="hidden" name="id" value="<%= p.id %>">
-              <input type="text" name="name" value="<%= p.name %>" required><br>
-              <input type="file" name="photo"><br>
-              <input type="text" name="description" value="<%= p.description %>"><br>
-              <button type="submit">Update</button>
-            </form>
-          </details>
-        </td>
-      </tr>
-    <% }) %>
-  </table>
+                    <div class="form-group">
+                        <label for="adminPassword">Admin Password</label>
+
+                        <input type="password"
+                            id="adminPassword"
+                            placeholder="Enter new password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+
+                        <input type="password"
+                            id="confirmPassword"
+                            placeholder="Confirm new password">
+                    </div>
+                </div>
+
+
+                <!-- Save Button -->
+                <div class="settings-actions">
+                    <button class="save-btn" onclick="saveSettings()">
+                        Save Settings
+                    </button>
+
+                    <button class="reset-btn" onclick="resetSettings()">
+                        Reset
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        function showPage(event, pageId) {
+            if (event) event.preventDefault();
+
+            // Hide all sections
+            document.querySelectorAll(".page-section").forEach(section => {
+                section.classList.remove("active");
+            });
+
+            // Show target section
+            const target = document.getElementById(pageId + "-page");
+            if (target) {
+                target.classList.add("active");
+            }
+
+            // Update sidebar active link styling
+            document.querySelectorAll(".sidebar nav a").forEach(link => {
+                link.classList.remove("active");
+            });
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add("active");
+            }
+        }
+    </script>
 </body>
 </html>
