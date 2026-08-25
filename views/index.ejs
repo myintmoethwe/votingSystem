@@ -220,13 +220,32 @@
           <h2>👑 Select Male Candidates</h2>
           <p class="instruction">Please choose one option per category.</p>
 
-          <div class="candidate-container">
+          <<div class="candidate-container">
             <% participants.filter(p => p.gender === 'boy').forEach(p => { %>
               <div class="candidate">
                 <img src="<%= p.photo %>" alt="Candidate Photo">
                 <h3><%= p.name %></h3>
                 <p><%= p.decription %></p>
 
+                <% if (!locals.user || !locals.user.isAdmin) { %>
+                  <div class="option-buttons">
+                    <button type="button" class="select-btn queen-btn"
+                            onclick="selectCandidate(this, 'queen', '<%= p.id %>')">
+                        Queen
+                    </button>
+
+                    <button type="button" class="select-btn style-btn"
+                            onclick="selectCandidate(this, 'style', '<%= p.id %>')">
+                        Style
+                    </button>
+
+                    <button type="button" class="select-btn g-popular-btn"
+                            onclick="selectCandidate(this, 'g-popular', '<%= p.id %>')">
+                        Popular
+                    </button>
+                  </div>
+                <% } %>
+              </div>
             <% }) %>
           </div>
         </section>

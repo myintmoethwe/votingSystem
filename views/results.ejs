@@ -77,7 +77,7 @@
           <img src="<%= winners.queen.photo %>" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="<%= winners.queen.name %>">
           <h3><%= winners.queen.name %></h3>
           <p><%= winners.queen.description %></p>
-          <div class="vote-count"><%= winners.queen.%> Votes</div>
+          <div class="vote-count"><%= winners.queen.votes_king_queen %> Votes</div>
         <% } else { %>
           <p>No candidate recorded</p>
         <% } %>
