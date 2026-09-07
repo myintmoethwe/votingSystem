@@ -3,8 +3,16 @@ const isAdmin = (req, res, next) => {
   if (req.session && req.session.user && req.session.user.isAdmin === true) {
     return next();
   }
-  // Otherwise, kick them back to login page
   return res.redirect("/auth/login");
 };
 
 module.exports = isAdmin;
+
+//user authentication
+
+function ensureAuthenticated(req, res, next) {
+    if (req.session && req.session.isAuthenticated) {
+        return next(); 
+    }
+    res.redirect('/login'); 
+}

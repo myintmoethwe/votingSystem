@@ -22,7 +22,7 @@ exports.vote = async (req, res) => {
       req.body;
 
     if (req.session.hasVoted) {
-      return res.redirect("/");
+      return res.render("votingpage");;
     }
 
     await postVote({
@@ -35,7 +35,7 @@ exports.vote = async (req, res) => {
     });
 
     req.session.hasVoted = true;
-    res.redirect("/");
+    res.render("votedpage");
   } catch (error) {
     res.status(500).send("Error submitting votes: " + error.message);
   }

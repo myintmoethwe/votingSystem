@@ -1,3 +1,4 @@
+// routes/admin.routes.js
 const express = require("express");
 const router = express.Router();
 const {
@@ -8,23 +9,30 @@ const {
   updateParticipant,
   deleteParticipant,
   createParticipant,
+  updateCountdown,
+  pauseCountdown,
+  resumeCountdown,
+  resetCountdown,
+  getCountdownStatusApi,
 } = require("../controller/admin.controller");
 const isAdmin = require("../middleware/auth.middleware");
 const upload = require("../middleware/upload.middleware");
-const adminMiddleware = require("../middleware/auth.middleware");
 
-router.get("/dashboard", isAdmin, (req, res) => {
-  res.render("admin-dashboard", { user: req.session.user });
-});
-
+router.get("/", isAdmin, renderAdminDashboard);
+router.get("/dashboard", isAdmin, renderAdminDashboard);
 router.get("/results", renderResultsPage);
-router.get("/settings", renderSettings);
-router.post("/settings", updateSettings);
+router.get("/settings", isAdmin, renderSettings);
+router.post("/settings", isAdmin, updateSettings);
 
-router.post("/update/:id", upload.single("photo"), updateParticipant);
-router.get("/delete/:id", deleteParticipant);
+// API endpoints matching your frontend fetch calls
+router.post("/update-countdown", isAdmin, updateCountdown);
+router.post("/pause", isAdmin, pauseCountdown);
+router.post("/resume", isAdmin, resumeCountdown);
+router.post("/reset", isAdmin, resetCountdown);
+router.get("/api/countdown-status", isAdmin, getCountdownStatusApi);
 
-// Upload middleware
-router.post("/create", upload.single("photo"), createParticipant);
+router.post("/update/:id", isAdmin, upload.single("photo"), updateParticipant);
+router.get("/delete/:id", isAdmin, deleteParticipant);
+router.post("/create", isAdmin, upload.single("photo"), createParticipant);
 
 module.exports = router;

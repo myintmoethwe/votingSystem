@@ -1,36 +1,38 @@
+// services/admin.services.js
 const db = require("../config/db");
 
 exports.getKing = async () => {
   const { rows } = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"kingVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"kingVotes\" DESC LIMIT 1"
   );
   return rows[0] || null;
 };
 
 exports.getQueen = async () => {
   const { rows } = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"queenVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"queenVotes\" DESC LIMIT 1"
   );
   return rows[0] || null;
 };
+
 exports.getWinners = async () => {
   const king = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"kingVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"kingVotes\" DESC LIMIT 1"
   );
   const queen = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"queenVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"queenVotes\" DESC LIMIT 1"
   );
   const mrSmart = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"smartVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"smartVotes\" DESC LIMIT 1"
   );
   const msStyle = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"styleVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"styleVotes\" DESC LIMIT 1"
   );
   const mrPopular = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"popularVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'boy' ORDER BY \"boyPopularVotes\" DESC LIMIT 1"
   );
   const msPopular = await db.query(
-    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"popularVotes\" DESC LIMIT 1",
+    "SELECT * FROM participants WHERE LOWER(gender) = 'girl' ORDER BY \"girlPopularVotes\" DESC LIMIT 1"
   );
 
   return {
@@ -43,16 +45,18 @@ exports.getWinners = async () => {
   };
 };
 
-exports.createParticipant = async (name, photo, description, gender) => {
+exports.createParticipant = async (name, photo, description, gender, hobby, hometown) => {
   const query = `
-    INSERT INTO participants (name, photo, description, gender)
-    VALUES ($1, $2, $3, $4) RETURNING *;
+    INSERT INTO participants (name, photo, description, gender, hobby, hometown)
+    VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
   `;
   const { rows } = await db.query(query, [
     name,
-    photo,
-    description,
+    photo || null,
+    description || null,
     gender || "boy",
+    hobby || null,
+    hometown || null,
   ]);
   return rows[0];
 };
@@ -61,24 +65,24 @@ exports.deleteParticipant = async (id) => {
   await db.query("DELETE FROM participants WHERE id = $1", [id]);
 };
 
-exports.updateParticipantImage = async (id, name, photo, description) => {
+exports.updateParticipant = async (id, name, photo, description, gender, hobby, hometown) => {
   if (photo) {
     const query = `
       UPDATE participants 
-      SET name = $1, photo = $2, description = $3 
-      WHERE id = $4 
+      SET name = $1, photo = $2, description = $3, gender = $4, hobby = $5, hometown = $6 
+      WHERE id = $7 
       RETURNING *;
     `;
-    const { rows } = await db.query(query, [name, photo, description, id]);
+    const { rows } = await db.query(query, [name, photo, description || null, gender || "boy", hobby || null, hometown || null, id]);
     return rows[0];
   } else {
     const query = `
       UPDATE participants 
-      SET name = $1, description = $2 
-      WHERE id = $3 
+      SET name = $1, description = $2, gender = $3, hobby = $4, hometown = $5 
+      WHERE id = $6 
       RETURNING *;
     `;
-    const { rows } = await db.query(query, [name, description, id]);
+    const { rows } = await db.query(query, [name, description || null, gender || "boy", hobby || null, hometown || null, id]);
     return rows[0];
   }
 };
@@ -90,7 +94,8 @@ exports.getTotalVotes = async () => {
       COALESCE(SUM("queenVotes"), 0) AS total_queen_votes,
       COALESCE(SUM("smartVotes"), 0) AS total_smart_votes,
       COALESCE(SUM("styleVotes"), 0) AS total_style_votes,
-      COALESCE(SUM("popularVotes"), 0) AS total_popular_votes
+      COALESCE(SUM("boyPopularVotes"), 0) AS total_boy_popular_votes,
+      COALESCE(SUM("girlPopularVotes"), 0) AS total_girl_popular_votes
     FROM participants;
   `;
   const { rows } = await db.query(query);
@@ -102,25 +107,56 @@ exports.getSettings = async () => {
   return rows[0];
 };
 
-exports.updateSettings = async ({
-  election_name,
-  start_date,
-  end_date,
-  is_voting_open,
-  one_vote_per_student,
-  show_results,
-}) => {
-  const query = `
-    UPDATE settings 
-    SET election_name = $1, start_date = $2, end_date = $3, is_voting_open = $4, one_vote_per_student = $5, show_results = $6
-    WHERE id = 1
-  `;
-  await db.query(query, [
-    election_name,
-    start_date || null,
-    end_date || null,
-    is_voting_open === "open" || is_voting_open === true,
-    one_vote_per_student === "on" || one_vote_per_student === true,
-    show_results === "on" || show_results === true,
-  ]);
+exports.updateSettings = async (data) => {
+  const fields = [];
+  const values = [];
+  let index = 1;
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined) {
+      fields.push(`"${key}" = $${index++}`);
+      values.push(value);
+    }
+  }
+
+  if (fields.length === 0) return;
+
+  values.push(1); // For WHERE id = 1
+  const query = `UPDATE settings SET ${fields.join(", ")} WHERE id = $${index}`;
+  await db.query(query, values);
+};
+
+exports.updateCountdownService = async ({ target_time, duration, countdown_status }) => {
+    let validTargetTime;
+    if (!target_time || isNaN(Number(target_time))) {
+        validTargetTime = new Date();
+    } else {
+        validTargetTime = new Date(Number(target_time));
+    }
+
+    // Voting is open only if status is 'running'
+    const isOpen = countdown_status === 'running';
+
+    const query = `
+        UPDATE settings 
+        SET target_time = $1, duration = $2, countdown_status = $3, is_voting_open = $4 
+        WHERE id = 1
+    `;
+    return await db.query(query, [validTargetTime, duration, countdown_status, isOpen]);
+};
+
+exports.updateCountdownStatusService = async (status) => {
+    // Voting is open only if status is 'running'
+    const isOpen = status === 'running';
+
+    if (status === 'Reset') {
+        return await db.query(
+            `UPDATE settings SET countdown_status = $1, target_time = NULL, duration = NULL, is_voting_open = $2 WHERE id = 1`,
+            [status, isOpen]
+        );
+    }
+    return await db.query(
+        `UPDATE settings SET countdown_status = $1, is_voting_open = $2 WHERE id = 1`,
+        [status, isOpen]
+    );
 };

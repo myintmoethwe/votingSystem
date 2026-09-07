@@ -3,7 +3,7 @@ const path = require("path");
 const multer = require("multer");
 
 // Define the target upload path
-const uploadDir = path.join(__dirname, "public", "uploads");
+const uploadDir = path.join(__dirname, "uploads");
 
 // Ensure the directory exists before handling uploads
 if (!fs.existsSync(uploadDir)) {
